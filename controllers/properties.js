@@ -1,5 +1,4 @@
 const Property = require('../models/property');
-const rp = require('request-promise');
 
 module.exports = {
   index: propertiesIndex

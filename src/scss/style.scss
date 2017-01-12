@@ -4,6 +4,62 @@ body {
 
 #map-canvas {
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 52px);
   margin: 0 auto;
 }
+
+.markerHead, .address, .price {
+  width: 150px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.navbar {
+  margin-bottom: 0;
+}
+
+.navbar-default .navbar-brand, .navbar-nav>li>a,
+.navbar-default .navbar-nav>li>a {
+    color: black;
+}
+
+.navbar-default .navbar-nav > li > .searchButton:hover, .navbar-default .navbar-nav > li > .searchButton:focus {
+    background-color: #c55;
+    color: black;
+}
+
+.searchButton {
+  background: #c55;
+}
+
+.searchBarWrapper {
+  background: #c55;
+}
+
+.searchBar {
+  background: #c55;
+  display:block;
+  overflow:auto;
+  text-align: center;
+}
+
+.searchSubmit {
+  // width: 100px;
+  display: inline-block;
+}
+
+.searchForm {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.locationForm, .testForm, select {
+  // width: 100px;
+  display: inline-block;
+}
+
+
+// .markerHead {
+//   display: inline-block;
+// }
