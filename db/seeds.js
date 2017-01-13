@@ -1,3 +1,8 @@
+const vision = require('@google-cloud/vision')({
+  projectId: 'image-scraping',
+  keyFilename: 'Image-scraping-5d9b95a7812f.json'
+});
+
 const mongoose = require('mongoose');
 const config = require('../config/config');
 const databaseUrl = config.db;
@@ -21,15 +26,18 @@ rp(options)
   for (var i in data.listing) {
     Property.create(data.listing[i], (err, listing) => {
       if (err) return console.log(err);
-      return console.log(`${listing.listing_id} saved`);
+      // return console.log(`${listing.listing_id} saved`);
     });
   }
+  console.log(`Total of ${i} saved`);
 })
 .catch(err => {
   console.log(err);
 });
 
-
+vision.detectText('floorplantest.jpg', function(err, text, apiResponse) {
+  console.log(text);
+});
 
 
 
