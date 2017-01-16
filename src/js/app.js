@@ -1,6 +1,7 @@
 const googleMap = googleMap || {};
 const google = google;
 googleMap.markers = [];
+var directionsService = new google.maps.DirectionsService();
 
 google.maps.Circle.prototype.contains = function(latLng) {
   return this.getBounds().contains(latLng) && google.maps.geometry.spherical.computeDistanceBetween(this.getCenter(), latLng) <= this.getRadius();
@@ -20,6 +21,9 @@ googleMap.mapSetup = function() {
 };
 
 googleMap.getProperties = function(circle) {
+  googleMap.directionsDisplay = new google.maps.DirectionsRenderer();
+  googleMap.directionsDisplay.setOptions({ preserveViewport: true });
+  googleMap.directionsDisplay.setMap(googleMap.map);
   return $.get('http://localhost:3000/properties').done(data => {
     const searchProperties = data.properties.filter(function(property) {
       const latlng = new google.maps.LatLng(property.latitude, property.longitude);
@@ -39,39 +43,77 @@ googleMap.getProperties = function(circle) {
   });
 };
 
+// descending sort
+function sortByKey(array, key) {
+  return array.sort(function(a, b) {
+    var x = a[key]; var y = b[key];
+    return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+  });
+}
 
 googleMap.loopThroughProperties = function(data) {
-  $.each(data, (index, property) => {
-    setTimeout(() => {
-      googleMap.createMarkerForProperty(property);
-    }, index*50);
-  });
+  const propertiesSorted = sortByKey(data, 'date');
+  for (var i = 0; i < Math.min(parseInt($('.numberOfProperties').val()), propertiesSorted.length); i++) {
+    googleMap.createMarkerForProperty(propertiesSorted[i]);
+  }
 };
 
 googleMap.createMarkerForProperty = function(property) {
   const latlng = new google.maps.LatLng(property.latitude, property.longitude);
   const marker = new google.maps.Marker({
     position: latlng,
-    animation: google.maps.Animation.DROP,
+    // animation: google.maps.Animation.DROP,
     map: this.map
   });
   googleMap.markers.push(marker);
-  this.addInfoWindowForProperty(property, marker);
+  googleMap.addInfoWindowForProperty(property, marker);
 };
+
 
 googleMap.addInfoWindowForProperty = function(property, marker) {
   google.maps.event.addListener(marker, 'click', () => {
-    if (typeof this.infoWindow !== 'undefined') this.infoWindow.close();
+    const latlng = new google.maps.LatLng(property.latitude, property.longitude);
+    const workLatLng = $('.commuteForm').val();
+    if (workLatLng) {
+      googleMap.calcRoute(latlng, workLatLng, () => {
+        googleMap.addInfoWindow(property, marker);
+      });
+    } else googleMap.addInfoWindow(property, marker);
+  });
+};
+
+googleMap.addInfoWindow = function(property, marker) {
+  $('#mySidenav').style.width = '250px';
+
+
+
+
+
+  if (typeof this.infoWindow !== 'undefined') this.infoWindow.close();
+  if (property.squareFeet) {
     this.infoWindow = new google.maps.InfoWindow({
       content: `
-        <h4 class="markerHead"><a href="${property.details_url}">${property.num_bedrooms} bed ${property.property_type}</a></h4>
-        <img src="${property.image_80_60_url || ''}">
-        <p class="address">${property.displayable_address}</p>
-        <p class="price">£${parseInt(property.price).toLocaleString()}</p>
+      <h4 class="markerHead"><a href="${property.details_url}">${property.num_bedrooms} bed ${property.property_type}</a></h4>
+      <img src="${property.image_80_60_url || ''}">
+      <p class="address">${property.displayable_address}</p>
+      <p class="price">£${parseInt(property.price).toLocaleString()}</p>
+      <p class="squareFeet">${property.squareFeet} square feet</p>
+      <p class="pricePerSquareFoot">£${parseInt(property.pricePerSquareFoot)} per square foot</p>
+      <p class="commuteTime">${googleMap.commuteTime}</p>
       `
     });
-    this.infoWindow.open(this.map, marker);
-  });
+  } else {
+    this.infoWindow = new google.maps.InfoWindow({
+      content: `
+      <h4 class="markerHead"><a href="${property.details_url}">${property.num_bedrooms} bed ${property.property_type}</a></h4>
+      <img src="${property.image_80_60_url || ''}">
+      <p class="address">${property.displayable_address}</p>
+      <p class="price">£${parseInt(property.price).toLocaleString()}</p>
+      <p class="commuteTime">${googleMap.commuteTime}</p>
+      `
+    });
+  }
+  this.infoWindow.open(this.map, marker);
 };
 
 googleMap.getSearchLocation = function(e) {
@@ -117,19 +159,43 @@ googleMap.getSearchLocation = function(e) {
 googleMap.clearSearch = function(e) {
   if (e) e.preventDefault();
   $('.locationForm').val('');
+  $('.commuteForm').val('');
   $('.searchRadius').val('Radius');
   $('.minPrice').val('Min price');
   $('.maxPrice').val('Max price');
+  $('.searchBedrooms').val('Bedrooms');
+  googleMap.commuteTime = '';
   for (const marker of googleMap.markers) {
     marker.setMap(null);
   }
   googleMap.markers = [];
-  googleMap.searchCircle.setMap(null);
-  this.getProperties();
+  if (googleMap.searchCircle) googleMap.searchCircle.setMap(null);
+  if (googleMap.directionsDisplay !== null) {
+    googleMap.directionsDisplay.setMap(null);
+    googleMap.directionsDisplay = null;
+  }
+  googleMap.getProperties();
 };
 
-
-
+googleMap.calcRoute = function(latlng, workLatLng, callback) {
+  const start = latlng;
+  const end = workLatLng;
+  const request = {
+    origin: start,
+    destination: end,
+    travelMode: 'TRANSIT'
+  };
+  directionsService.route(request, function(result, status) {
+    if (status === 'OK') {
+      googleMap.directionsDisplay.setDirections(result);
+      googleMap.commuteTime = `Commute time: ${(result.routes[0].legs[0].duration.text)}`;
+      callback();
+    } else {
+      console.log(status);
+      callback();
+    }
+  });
+};
 
 
 $(googleMap.mapSetup.bind(googleMap));

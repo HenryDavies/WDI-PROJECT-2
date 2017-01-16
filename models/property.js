@@ -11,7 +11,17 @@ const propertySchema = new mongoose.Schema({
   num_bathrooms: { type: String},
   property_type: { type: String},
   image_80_60_url: { type: String},
-  details_url: { type: String, required: true }
+  details_url: { type: String, required: true },
+  floor_plan: { type: Array },
+  squareFeet: { type: Number },
+  pricePerSquareFoot: { type: Number },
+  floorPlanText: { },
+  status: { type: String },
+  price_modifier: { type: String },
+  price_change: { },
+  first_published_date: { },
+  last_published_date: { },
+  date: { type: Number }
 }, {
   timestamps: true
 });
