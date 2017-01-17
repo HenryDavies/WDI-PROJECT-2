@@ -21,9 +21,7 @@ googleMap.mapSetup = function() {
 };
 
 googleMap.getProperties = function(circle) {
-  googleMap.directionsDisplay = new google.maps.DirectionsRenderer();
-  googleMap.directionsDisplay.setOptions({ preserveViewport: true });
-  googleMap.directionsDisplay.setMap(googleMap.map);
+  googleMap.start = 0;
   return $.get('http://localhost:3000/properties').done(data => {
     const searchProperties = data.properties.filter(function(property) {
       const latlng = new google.maps.LatLng(property.latitude, property.longitude);
@@ -52,17 +50,59 @@ function sortByKey(array, key) {
 }
 
 googleMap.loopThroughProperties = function(data) {
+  googleMap.directionsDisplay = new google.maps.DirectionsRenderer();
+  googleMap.directionsDisplay.setOptions({ preserveViewport: true });
+  googleMap.directionsDisplay.setMap(googleMap.map);
+
   const propertiesSorted = sortByKey(data, 'date');
-  for (var i = 0; i < Math.min(parseInt($('.numberOfProperties').val()), propertiesSorted.length); i++) {
+  const totalProperties = propertiesSorted.length;
+  const propertiesRequested = parseInt($('.numberOfProperties').val().split(' ')[1]);
+  $('footer').off('click', '.showMore');
+  $('footer').on('click','.showMore',() => {
+    googleMap.showMore(propertiesSorted, totalProperties, propertiesRequested, googleMap.start);
+  });
+  $('footer').off('click', '.showPrevious');
+  $('footer').on('click','.showPrevious',() => {
+    googleMap.showPrevious(propertiesSorted, totalProperties, propertiesRequested, googleMap.start);
+  });
+  $('footer').html(`
+    <p class="showing">Showing ${googleMap.start}-${Math.min(propertiesRequested + googleMap.start,totalProperties)} of ${totalProperties} total properties</p>
+  `);
+  if (totalProperties > propertiesRequested + googleMap.start) {
+    $('footer').append(`
+      <button class="showMore btn btn-default">Show next ${Math.min(propertiesRequested, totalProperties - propertiesRequested - googleMap.start)}</button>
+    `);
+  }
+  if (googleMap.start > 0) {
+    $('footer').append(`
+      <button class="showPrevious btn btn-default">Show previous ${Math.min(propertiesRequested, googleMap.start)}</button>
+    `);
+  }
+  for (let i = googleMap.start; i < Math.min(googleMap.start + propertiesRequested,totalProperties); i++) {
     googleMap.createMarkerForProperty(propertiesSorted[i]);
   }
+};
+
+googleMap.showMore = function(propertiesSorted, totalProperties, propertiesRequested) {
+  googleMap.removeMarkers();
+  googleMap.start += propertiesRequested;
+  googleMap.loopThroughProperties(propertiesSorted);
+};
+
+googleMap.showPrevious = function(propertiesSorted, totalProperties, propertiesRequested) {
+  googleMap.removeMarkers();
+  googleMap.start -= propertiesRequested;
+  googleMap.loopThroughProperties(propertiesSorted);
 };
 
 googleMap.createMarkerForProperty = function(property) {
   const latlng = new google.maps.LatLng(property.latitude, property.longitude);
   const marker = new google.maps.Marker({
     position: latlng,
-    // animation: google.maps.Animation.DROP,
+    icon: {
+      url: 'home_icon.png',
+      scaledSize: new google.maps.Size(20, 20)
+    },
     map: this.map
   });
   googleMap.markers.push(marker);
@@ -83,33 +123,29 @@ googleMap.addInfoWindowForProperty = function(property, marker) {
 };
 
 googleMap.addInfoWindow = function(property, marker) {
-  $('#mySidenav').style.width = '250px';
-
-
-
-
-
   if (typeof this.infoWindow !== 'undefined') this.infoWindow.close();
-  if (property.squareFeet) {
+  if (property.squareFeet || property.scrapeSquareFeet !== 'NA') {
     this.infoWindow = new google.maps.InfoWindow({
       content: `
-      <h4 class="markerHead"><a href="${property.details_url}">${property.num_bedrooms} bed ${property.property_type}</a></h4>
+      <h4 class="markerHead"><a target="_blank" href="${property.details_url}">${property.num_bedrooms} bed ${property.property_type}</a></h4>
       <img src="${property.image_80_60_url || ''}">
       <p class="address">${property.displayable_address}</p>
       <p class="price">£${parseInt(property.price).toLocaleString()}</p>
-      <p class="squareFeet">${property.squareFeet} square feet</p>
-      <p class="pricePerSquareFoot">£${parseInt(property.pricePerSquareFoot)} per square foot</p>
-      <p class="commuteTime">${googleMap.commuteTime}</p>
+      <p class="squareFeet">${property.scrapeSquareFeet !== 'NA' ? property.scrapeSquareFeet : property.squareFeet} square feet</p>
+      <p class="pricePerSquareFoot">£${parseInt(property.pricePerSquareFoot) } per square foot</p>
+      <p class="commuteTime">${googleMap.commuteTime || ''}</p>
+      <a target="_blank" href="${property.floor_plan || ''}">Floor plan</a>
       `
     });
   } else {
     this.infoWindow = new google.maps.InfoWindow({
       content: `
-      <h4 class="markerHead"><a href="${property.details_url}">${property.num_bedrooms} bed ${property.property_type}</a></h4>
+      <h4 class="markerHead"><a target="_blank" href="${property.details_url}">${property.num_bedrooms} bed ${property.property_type}</a></h4>
       <img src="${property.image_80_60_url || ''}">
       <p class="address">${property.displayable_address}</p>
       <p class="price">£${parseInt(property.price).toLocaleString()}</p>
-      <p class="commuteTime">${googleMap.commuteTime}</p>
+      <p class="commuteTime">${googleMap.commuteTime || ''}</p>
+      <a target="_blank" href="${property.floor_plan || ''}>Floor plan</a>"
       `
     });
   }
@@ -118,10 +154,8 @@ googleMap.addInfoWindow = function(property, marker) {
 
 googleMap.getSearchLocation = function(e) {
   if (e) e.preventDefault();
-  for (const marker of googleMap.markers) {
-    marker.setMap(null);
-  }
-  googleMap.markers = [];
+  googleMap.removeMarkers();
+  googleMap.removeCircle();
   const searchAddress = $('.locationForm').val();
   const searchRadius = parseInt($('.searchRadius').val())*1000 || 2500;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchAddress}&bounds=0.3170,%2051.7360|-0.6553,%2051.2503&components=administrative_area:England&key=AIzaSyAzPfoyVbxG2oz378kpMkMszn2XtZn-1SU`;
@@ -142,15 +176,17 @@ googleMap.getSearchLocation = function(e) {
       });
       googleMap.markers.push(marker);
       googleMap.searchCircle = new google.maps.Circle({
-        strokeColor: '#FF0000',
+        strokeColor: '#1A1F16',
         strokeOpacity: 0.8,
         strokeWeight: 2,
-        fillColor: '#FF0000',
+        fillColor: '#1A1F16',
         fillOpacity: 0.15,
         map: googleMap.map,
         center: latlng,
         radius: searchRadius
       });
+      googleMap.map.setCenter(latlng);
+      googleMap.map.fitBounds(googleMap.searchCircle.getBounds());
       googleMap.getProperties(googleMap.searchCircle);
     });
   } else googleMap.getProperties();
@@ -158,23 +194,38 @@ googleMap.getSearchLocation = function(e) {
 
 googleMap.clearSearch = function(e) {
   if (e) e.preventDefault();
+  googleMap.resetForm();
+  googleMap.removeMarkers();
+  googleMap.removeCircle();
+  googleMap.map.setCenter(new google.maps.LatLng(51.5085300,-0.1257400));
+  googleMap.map.setZoom(11);
+  googleMap.getProperties();
+};
+
+googleMap.resetForm = function() {
   $('.locationForm').val('');
   $('.commuteForm').val('');
   $('.searchRadius').val('Radius');
   $('.minPrice').val('Min price');
   $('.maxPrice').val('Max price');
   $('.searchBedrooms').val('Bedrooms');
-  googleMap.commuteTime = '';
+  $('.numberOfProperties').val('Show 50 properties');
+};
+
+googleMap.removeMarkers = function() {
   for (const marker of googleMap.markers) {
     marker.setMap(null);
   }
   googleMap.markers = [];
-  if (googleMap.searchCircle) googleMap.searchCircle.setMap(null);
+  googleMap.commuteTime = '';
   if (googleMap.directionsDisplay !== null) {
     googleMap.directionsDisplay.setMap(null);
     googleMap.directionsDisplay = null;
   }
-  googleMap.getProperties();
+};
+
+googleMap.removeCircle = function() {
+  if (googleMap.searchCircle) googleMap.searchCircle.setMap(null);
 };
 
 googleMap.calcRoute = function(latlng, workLatLng, callback) {
@@ -196,6 +247,5 @@ googleMap.calcRoute = function(latlng, workLatLng, callback) {
     }
   });
 };
-
 
 $(googleMap.mapSetup.bind(googleMap));
