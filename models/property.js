@@ -14,16 +14,25 @@ const propertySchema = new mongoose.Schema({
   details_url: { type: String, required: true },
   floor_plan: { type: Array },
   squareFeet: { type: Number },
-  pricePerSquareFoot: { type: Number },
+  pricePerSquareFoot: { },
   floorPlanText: { },
   status: { type: String },
   price_modifier: { type: String },
   price_change: { },
   first_published_date: { },
   last_published_date: { },
-  date: { type: Number }
+  date: { type: Number },
+  finalArray: { },
+  priceHistory: { type: Array },
+  parsedText: { },
+  scrapeSquareFeet: { }
 }, {
   timestamps: true
 });
 
 module.exports = mongoose.model('Property', propertySchema);
+
+
+// priceHistory
+// array of arrays
+// [[price, firstpublished, lastpublished],...]
