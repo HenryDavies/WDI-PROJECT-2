@@ -4,7 +4,7 @@ const databaseUrl = config.db;
 const Property = require('../models/property');
 const rp = require('request-promise');
 const start = 0;
-const end = 3;
+const end = 10;
 let counter = 0;
 
 mongoose.connect(databaseUrl);
@@ -23,15 +23,21 @@ for (var i = start; i < end; i++) {
     .then(data => {
       data.listing.forEach((listing, index) => {
         listing.date = Date.parse(listing.last_published_date);
-        Property.create(listing, (err, listing) => {
-          if (err) return console.log(err);
-          counter++;
-          return console.log(`${listing.listing_id} saved, ${counter}`);
+        Property.count({ listing_id: listing.listing_id, date: Date.parse(listing.last_published_date) }, (err, count) => {
+          if (count === 0) {
+            Property.create(listing, (err, listing) => {
+              if (err) return console.log(err);
+              counter++;
+              return console.log(`${listing.listing_id} saved, ${counter}`);
+            });
+          } else console.log('already exists in DB');
         })
         .catch(err => {
           if (err) console.log('rp error:', err);
         });
       });
     });
-  },  (i - start) * 420000);
+  },  (i - start) * 1000);
 }
+
+// (i - start) * 420000

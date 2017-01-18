@@ -124,14 +124,14 @@ googleMap.addInfoWindowForProperty = function(property, marker) {
 
 googleMap.addInfoWindow = function(property, marker) {
   if (typeof this.infoWindow !== 'undefined') this.infoWindow.close();
-  if (property.squareFeet || property.scrapeSquareFeet !== 'NA') {
+  if (property.squareFeet || (property.scrapeSquareFeet !== 'NA' && property.scrapeSquareFeet)) {
     this.infoWindow = new google.maps.InfoWindow({
       content: `
       <h4 class="markerHead"><a target="_blank" href="${property.details_url}">${property.num_bedrooms} bed ${property.property_type}</a></h4>
       <img src="${property.image_80_60_url || ''}">
       <p class="address">${property.displayable_address}</p>
       <p class="price">£${parseInt(property.price).toLocaleString()}</p>
-      <p class="squareFeet">${property.scrapeSquareFeet !== 'NA' ? property.scrapeSquareFeet : property.squareFeet} square feet</p>
+      <p class="squareFeet">${(property.scrapeSquareFeet !== 'NA' && property.scrapeSquareFeet) ? property.scrapeSquareFeet : property.squareFeet} square feet</p>
       <p class="pricePerSquareFoot">£${parseInt(property.pricePerSquareFoot) } per square foot</p>
       <p class="commuteTime">${googleMap.commuteTime || ''}</p>
       <a target="_blank" href="${property.floor_plan || ''}">Floor plan</a>

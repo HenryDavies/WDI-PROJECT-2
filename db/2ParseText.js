@@ -9,7 +9,7 @@ const Property = require('../models/property');
 const fs = require('fs');
 const request = require('request');
 const async = require('async');
-const PARALLEL_LIMIT = 10;
+const PARALLEL_LIMIT = 5;
 let counter = 0;
 
 const squareFeetArray = ['SQFT','SQ FT','SOFT','SO FT','SAFT','SA FT','SQ FEET',
@@ -31,22 +31,18 @@ const download = (uri, filename, callback) => {
   });
 };
 
-// function updatedToday(date) {
-//   return date >= Date.parse('2017-01-17 00:00:00');
-// }
-//
-// function updatedSinceX(date) {
-//   return date >= Date.parse('2017-01-17 12:00:00');
-// }
-
-// GET SQUARE FEET DATA AND SAVE TO DB
-
+// GET SQUARE FEET DATA FROM FLOOR PLANS AND SAVE TO DB
 function editProperty(listing, callback) {
+  console.log(listing.pricePerSquareFoot);
   if (listing.price == 0) {
-    Property.remove(listing);
-    callback();
+    Property.remove({ listing_id: listing.listing_id, date: listing.date }, err => {
+      if (err) console.log(err);
+      else {
+        console.log('Property removed');
+        callback();
+      }
+    });
   } else if (listing.floor_plan[0] && listing.floor_plan[0] !== undefined && !listing.pricePerSquareFoot) {
-    console.log(listing.pricePerSquareFoot);
     download(listing.floor_plan[0], `images/${listing.listing_id}.png`, () => {
       vision.detectText(`images/${listing.listing_id}.png`, (err, text) => {
         if (err) {
@@ -74,7 +70,7 @@ function editProperty(listing, callback) {
                   listing.array[index][index1] = 0;
                 }
               });
-              console.log('yes', value);
+              // console.log('yes', value);
               listing.array[index].splice(listing.array[index].length-1, 1);
             }
           });
@@ -88,20 +84,30 @@ function editProperty(listing, callback) {
             listing.pricePerSquareFoot = listing.price / listing.squareFeet;
           }
           console.log(listing.finalArray,listing.squareFeet);
-          Property.create(listing, (err, listing) => {
+          listing.save((err, listing) => {
             if (err) return console.log(err);
             counter++;
-            return console.log(`${listing.listing_id} saved, ${counter}`);
+            console.log(`${listing.listing_id} saved, ${counter}`);
+            callback();
           });
-          callback();
         } else callback();
       });
     });
   } else callback();
 }
 
+// descending sort
+function sortByKey(array, key) {
+  return array.sort(function(a, b) {
+    var x = a[key]; var y = b[key];
+    return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+  });
+}
+
+
 Property.find({}, (err, data) => {
-  async.eachLimit(data, PARALLEL_LIMIT, editProperty, function(err) {
+  const shortArray = sortByKey(data,'date').slice(0,3000);
+  async.eachLimit(shortArray, PARALLEL_LIMIT, editProperty, function(err) {
     if (err) console.log(err);
     console.log('done');
     dbSummary();
