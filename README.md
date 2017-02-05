@@ -17,7 +17,7 @@ As well as being an arduous task - due to the huge number of listings posted per
 
 ## The solution
 
-PropertEast is hugely improved (and automated) version of my spreadsheet, presented in a clean, map-based format. It offers the following:
+PropertEase is hugely improved (and automated) version of my spreadsheet, presented in a clean, map-based format. It offers the following:
 
 - A map showing all the latest Zoopla property listings in London. The user can choose to see between 50 and 250 properties at one time, and click through to instantly see all of the rest of the >10,000 listings
 - The user's search can be filtered by location (and specified search radius), number of bedrooms and price range
