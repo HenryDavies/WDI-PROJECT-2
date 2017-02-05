@@ -2,7 +2,7 @@
 
 ## Overview
 
-PropertEase is a property map that makes house searches easier. It was created as my second project for a 12-week Web Development Immersive course at General Assembly in London. It was built using a MEN stack (MongoDB, Express, Node). 
+PropertEase is a property map that makes property searches easier. It was created as my second project for a 12-week Web Development Immersive course at General Assembly in London. It was built using a MEN stack (MongoDB, Express, Node). 
 
 ## The problem
 
@@ -12,7 +12,7 @@ I was once this average Joe. I set out to educate myself on the property market 
 
 As well as being an arduous task - due to the huge number of listings posted per day and largely manual labour - there were two main problems: 
 
-- Square foot data is hard to come by. On Zoopla, only ~15% of listed properties show the square foot data on the listing page. Most properties have floor plans with the square foot listed on them, but these floor plans are not always linked to on the website.
+- Square foot data is hard to come by. On Zoopla, only ~15% of listed properties show the square foot data on the listing page. Most properties have floor plans with the square foot listed on them, but these floor plans are not always linked to on the website
 - Subjective comments on location, made by eyeing up the map, are of limited use. For example, a property may be right next to a tube station yet still be a nightmare commute to wherever one works. Likewise, a property may seem way outside one's search area but actually offer a short commute due to favourable train links
 
 ## The solution
@@ -35,7 +35,7 @@ PropertEase is hugely improved (and automated) version of my spreadsheet, presen
 - Sometimes a new listing will be an update of a previous listing. When this happens, I move the price(s) and date(s) from the old version of the listing to a history field in the new listing before deleting the old version from the database
 
 ##### Acquisition of square foot data
-- **The first 15%**: I scrape the square foot data for the 15% of listings that show the data on the main Zoopla URL. Given that the square foot data is always in the same place in the HTML, this is a relatively simple exercise.
+- **The first 15%**: I scrape the square foot data for the 15% of listings that show the data on the main Zoopla URL. Given that the square foot data is always in the same place in the HTML, this is a relatively simple exercise
 - **The rest of the listings**: Acquiring the rest of the square foot data involves parsing the text off floor plans using the Google Cloud Vision API. The process is as follows:
 	- Save all of the floor plans available (excluding the 15%)
 	- Parse the text off them with the Google Cloud Vision API
