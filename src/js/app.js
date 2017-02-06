@@ -22,7 +22,7 @@ googleMap.mapSetup = function() {
 
 googleMap.getProperties = function(circle) {
   googleMap.start = 0;
-  return $.get('http://localhost:3000/properties').done(data => {
+  return $.get(`${window.location.origin}/properties`).done(data => {
     const searchProperties = data.properties.filter(function(property) {
       const latlng = new google.maps.LatLng(property.latitude, property.longitude);
       const inCircle = circle ? circle.contains(latlng) : true;
