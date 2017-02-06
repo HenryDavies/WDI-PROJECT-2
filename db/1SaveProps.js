@@ -37,7 +37,7 @@ for (var i = start; i < end; i++) {
         });
       });
     });
-  },  (i - start) * 42000);
+  },  (i - start) * 1000);
 }
 
 // (i - start) * 420000 - delay if downloading more than 1000 (10 pages)
