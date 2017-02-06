@@ -35,6 +35,7 @@ for (var i = start; i < end; i++) {
           } else {
             counter++;
             console.log(`already exists in DB, ${counter}`);
+          }
         })
         .catch(err => {
           if (err) console.log('rp error:', err);
