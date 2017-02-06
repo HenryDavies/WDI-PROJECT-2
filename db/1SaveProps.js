@@ -6,6 +6,7 @@ const rp = require('request-promise');
 const start = 0;
 const end = 10;
 let counter = 0;
+let saveCounter = 0;
 
 mongoose.connect(databaseUrl);
 
@@ -27,10 +28,13 @@ for (var i = start; i < end; i++) {
           if (count === 0) {
             Property.create(listing, (err, listing) => {
               if (err) return console.log(err);
+              saveCounter++;
               counter++;
-              return console.log(`${listing.listing_id} saved, ${counter}`);
+              return console.log(`${listing.listing_id} saved, ${counter}, ${saveCounter}`);
             });
-          } else console.log('already exists in DB');
+          } else {
+            counter++;
+            console.log(`already exists in DB, ${counter}`);
         })
         .catch(err => {
           if (err) console.log('rp error:', err);
