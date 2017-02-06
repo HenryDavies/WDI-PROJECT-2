@@ -41,7 +41,7 @@ gulp.task('fonts', () => {
 // run es6,sass, images,fonts before running the inner functions (browserSync, nodemon)
 gulp.task('serve', ['es6', 'sass', 'images', 'fonts'], () => {
   browserSync.init({
-    proxy: 'http://localhost:3000',
+    proxy: `http://localhost:3000`,
     files: ['public/**/*.*'],
     browser: 'google chrome',
     port: 7000,
