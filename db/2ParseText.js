@@ -10,6 +10,7 @@ const fs = require('fs');
 const request = require('request');
 const async = require('async');
 const PARALLEL_LIMIT = 5;
+const path = require('path');
 let counter = 0;
 
 const squareFeetArray = ['SQFT','SQ FT','SOFT','SO FT','SAFT','SA FT','SQ FEET',
@@ -20,13 +21,19 @@ const squareFeetArray = ['SQFT','SQ FT','SOFT','SO FT','SAFT','SA FT','SQ FEET',
 mongoose.connect(databaseUrl);
 
 const download = (uri, filename, callback) => {
-  request.head({uri: uri}, function(err, res){
-    if (err) console.log(err);
-    else {
+  request.head({ uri: uri }, function(err, res){
+    if (err) {
+      console.log(err)
+    } else {
       console.log('content-type:', res.headers['content-type']);
       console.log('content-length:', res.headers['content-length']);
 
-      request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+      request(uri)
+        .pipe(fs.createWriteStream(filename))
+        .on('close', callback)
+        .on('error', (err) => {
+          return console.log(err);
+        });
     }
   });
 };
@@ -36,15 +43,16 @@ function editProperty(listing, callback) {
   console.log(listing.pricePerSquareFoot);
   if (listing.price == 0) {
     Property.remove({ listing_id: listing.listing_id, date: listing.date }, err => {
-      if (err) console.log(err);
-      else {
+      if (err) {
+        console.log(err);
+      } else {
         console.log('Property removed');
         callback();
       }
     });
   } else if (listing.floor_plan[0] && listing.floor_plan[0] !== undefined && !listing.pricePerSquareFoot) {
-    download(listing.floor_plan[0], `${__dirname}/images/${listing.listing_id}.png`, () => {
-      vision.detectText(`${__dirname}/images/${listing.listing_id}.png`, (err, text) => {
+    download(listing.floor_plan[0], path.join(__dirname, `../images/${listing.listing_id}.png`), () => {
+      vision.detectText(path.join(__dirname, `../images/${listing.listing_id}.png`), (err, text) => {
         if (err) {
           console.log('cloud vision error:', err);
           callback();
