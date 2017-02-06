@@ -100,7 +100,7 @@ googleMap.createMarkerForProperty = function(property) {
   const marker = new google.maps.Marker({
     position: latlng,
     icon: {
-      url: 'home_icon.png',
+      url: '/home_icon.png',
       scaledSize: new google.maps.Size(20, 20)
     },
     map: this.map
