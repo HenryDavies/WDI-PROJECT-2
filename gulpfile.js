@@ -22,7 +22,7 @@ gulp.task('sass', () => {
 });
 
 gulp.task('images', () => {
-  return gulp.src('src/images/**/*.{png,jpg,jpeg,gif,ico}')
+  return gulp.src('src/**/*.{png,jpg,jpeg,gif,ico}')
   .pipe(imagemin({
     optimzationLevel: 3,
     progressive: true,
