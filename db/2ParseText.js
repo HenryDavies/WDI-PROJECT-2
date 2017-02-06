@@ -43,8 +43,8 @@ function editProperty(listing, callback) {
       }
     });
   } else if (listing.floor_plan[0] && listing.floor_plan[0] !== undefined && !listing.pricePerSquareFoot) {
-    download(listing.floor_plan[0], `images/${listing.listing_id}.png`, () => {
-      vision.detectText(`images/${listing.listing_id}.png`, (err, text) => {
+    download(listing.floor_plan[0], `${__dirname}/images/${listing.listing_id}.png`, () => {
+      vision.detectText(`${__dirname}/images/${listing.listing_id}.png`, (err, text) => {
         if (err) {
           console.log('cloud vision error:', err);
           callback();
