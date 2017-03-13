@@ -9,7 +9,7 @@ const Property = require('../models/property');
 const fs = require('fs');
 const request = require('request');
 const async = require('async');
-const PARALLEL_LIMIT = 5;
+const PARALLEL_LIMIT = 3;
 const path = require('path');
 let counter = 0;
 
@@ -116,6 +116,7 @@ function sortByKey(array, key) {
 Property.find({}, (err, data) => {
   const shortArray = sortByKey(data,'date').slice(0,3000);
   async.eachLimit(shortArray, PARALLEL_LIMIT, editProperty, function(err) {
+    console.log('reached');
     if (err) console.log(err);
     console.log('done');
     dbSummary();
