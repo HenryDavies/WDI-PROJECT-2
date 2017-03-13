@@ -1,16 +1,20 @@
 # PropertEase
 
+<img width="1440" alt="screen shot 2017-03-13 at 13 04 10" src="https://cloud.githubusercontent.com/assets/22742327/23855465/a901b652-07ed-11e7-972e-851c1bf390b8.png">
+
 ## Overview
 
-PropertEase is a property map that makes property searches easier. It was created as my second project for a 12-week Web Development Immersive course at General Assembly in London. It was built using a MEN stack (MongoDB, Express, Node). 
+PropertEase is a property map that makes property searches easier. It was created as my second project for a 12-week Web Development Immersive course at General Assembly in London. It was built using a MEN stack (MongoDB, Express, Node).
+
+See it here: [PropertEase](https://propert-ease.herokuapp.com/).
 
 ## The problem
 
-House searches are hard. Getting a good deal on a house requires in-depth knowledge of the local property market. The average Joe doesn't have this. While he can acquire this knowledge, it is extremely time consuming and difficult. 
+House searches are hard. Getting a good deal on a house requires in-depth knowledge of the local property market. The average Joe doesn't have this. While he can acquire this knowledge, it is extremely time consuming and difficult.
 
-I was once this average Joe. I set out to educate myself on the property market by maintaining and updating an excel spreadsheet. My goal was to find a property at an attractive valuation and in a convenient location. I therefore recorded the price per square foot and subjective comments on location for every property put on the market within my search parameters. 
+I was once this average Joe. I set out to educate myself on the property market by maintaining and updating an excel spreadsheet. My goal was to find a property at an attractive valuation and in a convenient location. I therefore recorded the price per square foot and subjective comments on location for every property put on the market within my search parameters.
 
-As well as being an arduous task - due to the huge number of listings posted per day and largely manual labour - there were two main problems: 
+As well as being an arduous task - due to the huge number of listings posted per day and largely manual labour - there were two main problems:
 
 - Square foot data is hard to come by. On Zoopla, only ~15% of listed properties show the square foot data on the listing page. Most properties have floor plans with the square foot listed on them, but these floor plans are not always linked to on the website
 - Subjective comments on location, made by eyeing up the map, are of limited use. For example, a property may be right next to a tube station yet still be a nightmare commute to wherever one works. Likewise, a property may seem way outside one's search area but actually offer a short commute due to favourable train links
@@ -41,7 +45,7 @@ PropertEase is hugely improved (and automated) version of my spreadsheet, presen
 	- Parse the text off them with the Google Cloud Vision API
 	- Look for all variations of square foot - 25 variations used (e.g. 'SQ FT', 'SA-FT')
 	- Find the maximum square foot number by splitting the text by each spelling of square foot (after making several adjustments to the text e.g. removing thousand separators and several other characters)
-	- Remove outliers: floor plans often appear antiquated, as if they have been scanned and faxed several times. Because of this, the text parser is not perfect. Luckily, mistakes are often adding or missing a digit, which leads to square foot data that is wildly off. I deal with these mistakes by excluding i) properties with a square footage under 250 or above 5000, and ii) properties with a price per square foot below 300 or above 1700. I estimate an error rate of **xxxx%**
+	- Remove outliers: floor plans often appear antiquated, as if they have been scanned and faxed several times. Because of this, the text parser is not perfect. Luckily, mistakes are often adding or missing a digit, which leads to square foot data that is wildly off. I deal with these mistakes by excluding i) properties with a square footage under 250 or above 5000, and ii) properties with a price per square foot below 300 or above 1700.
  	- Save square foot data to listings
 
 #### Showing the properties and commute on the map
@@ -53,20 +57,12 @@ PropertEase is hugely improved (and automated) version of my spreadsheet, presen
 
 ## Key challenges/learnings
 
-My biggest challenge was in getting the Google Cloud Vision API to work. The API can only take a certain amount of requests at one time, otherwise throwing up errors. To get around this, I throttled the requests using the *eachLimit* method of the *async* module. It took me some time to realise that I had to change the number of requests allowed at one time based upon the speed of my internet connection - what initially worked on campus didn't work at home, and what worked at home didn't work at home if my housemate was watching Netflix. 
+My biggest challenge was in getting the Google Cloud Vision API to work. The API can only take a certain amount of requests at one time, otherwise throwing up errors. To get around this, I throttled the requests using the *eachLimit* method of the *async* module. It took me some time to realise that I had to change the number of requests allowed at one time based upon the speed of my internet connection - what initially worked on campus didn't work at home, and what worked at home didn't work at home if my housemate was watching Netflix.
 
-Increasing my database up to the full 10,000 listings downloadable from Zoopla threw up more errors - this time relating to stack overflow. I fixed this by splitting the seeding processes into four different files, as well as more throttling. 
+Increasing my database up to the full 10,000 listings downloadable from Zoopla threw up more errors - this time relating to stack overflow. I fixed this by splitting the seeding processes into four different files, as well as more throttling.
 
-Downloading the full 10,000 listings was a time-consuming process due to API limits from Zoopla (1000 listings per hour). Two failed overnight attempts helped me realise the importance of proper error handling. 
+Downloading the full 10,000 listings was a time-consuming process due to API limits from Zoopla (1000 listings per hour). Two failed overnight attempts helped me realise the importance of proper error handling.
 
 ## Further work
 
-I believe there is significant value in the data gathered in this project. Mining the data over time would provide bottom-up price and valuation trends, which I do not believe is easily available anywhere else. The trend data would also provide interesting insights on how many properties are being sold, or how many prices are being reduced, versus historical averages. Finally, the data could be split in different ways - one potentially useful example would be to work out the average price per square foot for each post code in London. 
-
-
-
-
-
-
-
-
+I believe there is significant value in the data gathered in this project. Mining the data over time would provide bottom-up price and valuation trends, which I do not believe is easily available anywhere else. The trend data would also provide interesting insights on how many properties are being sold, or how many prices are being reduced, versus historical averages. Finally, the data could be split in different ways - one potentially useful example would be to work out the average price per square foot for each post code in London.

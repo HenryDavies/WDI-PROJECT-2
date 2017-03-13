@@ -4,7 +4,7 @@ body {
 
 #map-canvas {
   width: 100%;
-  height: calc(100vh - 83px);
+  height: calc(100vh - 85px);
   margin: 0 auto;
 }
 
@@ -96,9 +96,32 @@ footer {
     // height: auto !important;
 }
 
-@media only screen and (max-width: 1200px){
-  #map-canvas {
-    height: calc(100vh - 84px - 33px);
+@media only screen and (max-width: 1235px) and (min-width: 768px) {
+  .numberOfProperties {
+    display: none !important;
   }
+}
 
+@media only screen and (max-width: 1051px) and (min-width: 768px) {
+  #map-canvas {
+    height: calc(100vh - 135px);
+  }
+}
+
+@media only screen and (max-width: 952px) and (min-width: 768px) {
+  #map-canvas {
+    height: calc(100vh - 170px);
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  #map-canvas {
+    height: calc(100vh - 100px);
+  }
+}
+
+
+.navbar-collapse {
+  padding-right: 0;
+  padding-left: 0;
 }
