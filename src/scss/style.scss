@@ -100,17 +100,36 @@ footer {
   .numberOfProperties {
     display: none !important;
   }
-}
 
-@media only screen and (max-width: 1051px) and (min-width: 768px) {
-  #map-canvas {
-    height: calc(100vh - 135px);
+  .searchClear {
+    display: none !important;
+  }
+
+  .commuteForm, {
+    width: 142px !important;
+  }
+
+  .locationForm {
+    width: 124px !important;
+  }
+
+  .minPrice {
+    width: 85px !important;
+  }
+  .maxPrice {
+    width: 90px !important;
   }
 }
 
-@media only screen and (max-width: 952px) and (min-width: 768px) {
+@media only screen and (max-width: 1052px) and (min-width: 768px) {
   #map-canvas {
-    height: calc(100vh - 170px);
+    height: calc(100vh - 85px);
+  }
+}
+
+@media only screen and (max-width: 870px) and (min-width: 768px) {
+  #map-canvas {
+    height: calc(100vh - 135px);
   }
 }
 
