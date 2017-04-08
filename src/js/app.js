@@ -162,6 +162,8 @@ googleMap.getSearchLocation = function(e) {
   if (searchAddress) {
     $.get(url)
     .done(function(data){
+      console.log(data);
+      console.log(url);
       const lat = data.results[0].geometry.location.lat;
       const lng = data.results[0].geometry.location.lng;
       const latlng = new google.maps.LatLng(lat,lng);
