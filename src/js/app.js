@@ -158,7 +158,7 @@ googleMap.getSearchLocation = function(e) {
   googleMap.removeCircle();
   const searchAddress = $('.locationForm').val();
   const searchRadius = parseInt($('.searchRadius').val())*1000 || 2500;
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchAddress}&bounds=0.3170,%2051.7360|-0.6553,%2051.2503&components=administrative_area:England&key=AIzaSyAzPfoyVbxG2oz378kpMkMszn2XtZn-1SU`;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchAddress}&bounds=0.3170,%2051.7360|-0.6553,%2051.2503&components=country:GB&key=AIzaSyAzPfoyVbxG2oz378kpMkMszn2XtZn-1SU`;
   if (searchAddress) {
     $.get(url)
     .done(function(data){
